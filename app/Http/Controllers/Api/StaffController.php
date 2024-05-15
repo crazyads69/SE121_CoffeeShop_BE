@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MultipleDestroyRequest;
 use App\Http\Requests\StoreStaffRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -33,7 +34,7 @@ class StaffController extends Controller
         return response()->json($staff)->setStatusCode(201);
     }
 
-    public function update(StoreStaffRequest $request, User $staff)
+    public function update(UpdateUserRequest $request, User $staff)
     {
         $staff->update($request->all());
 
