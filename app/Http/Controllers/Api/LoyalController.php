@@ -3,13 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\MultipleDestroyRequest;
 use App\Http\Requests\StoreLoyalRequest;
-use App\Http\Requests\StoreProductRequest;
-use App\Models\Invoice;
 use App\Models\Loyal;
-use App\Models\Product;
-use Illuminate\Http\Request;
 
 
 class LoyalController extends Controller
