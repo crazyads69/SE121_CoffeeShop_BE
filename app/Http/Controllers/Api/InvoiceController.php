@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CheckBankRequest;
 use App\Http\Requests\CheckoutInvoiceRequest;
 use App\Http\Requests\MultipleDestroyRequest;
 use App\Models\Customer;
@@ -11,6 +12,7 @@ use App\Services\CartService;
 use App\Services\CustomerService;
 use App\Services\LoyalService;
 use App\Services\VoucherService;
+use App\Utils\RandomHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -89,6 +91,128 @@ class InvoiceController extends Controller
         ];
 
         return response($data, 200);
+    }
+
+    public function getQR(CheckoutInvoiceRequest $request) {
+        $cart = $request->input('cart');
+        $totalPrice = CartService::calculateCart($cart);
+
+        $voucherCode = $request->input('voucher_code');
+        $customerPhoneNumber = $request->input('customer_phone_number');
+
+
+        $qrFinalPrice = $totalPrice;
+
+        if ($voucherCode) {
+            [
+                'isAvailable' => $isVoucherAvailable,
+                'voucherType' => $voucherType,
+                'voucherAmount' => $voucherAmount,
+                'quantity' => $quantity,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ] = VoucherService::verifyVoucher($voucherCode);
+
+            $today = date('Y-m-d H:i:s');
+
+            if (! $isVoucherAvailable || $quantity < 1 || $today > $endDate || $today < $startDate) {
+                $data = [
+                    'isSuccess' => false,
+                    'message' => 'Voucher không hợp lệ hoặc đã hết hạn sử dụng, vui lòng xoá hoặc kiểm tra lại',
+                ];
+
+                return response($data, 200);
+            }
+
+            [$_, $finalPrice] = CartService::applyVoucher($totalPrice, $voucherType, $voucherAmount);
+
+            if ($customerPhoneNumber) {
+                $loyal = CustomerService::getCurrentLoyal($customerPhoneNumber);
+
+                [$_, $finalPriceLoyal] = LoyalService::applyLoyal($finalPrice, $loyal);
+
+                $qrFinalPrice = $finalPriceLoyal;
+            } else {
+
+                $qrFinalPrice = $finalPrice;
+            }
+        } else {
+            if ($customerPhoneNumber) {
+                $loyal = CustomerService::getCurrentLoyal($customerPhoneNumber);
+
+                [$_, $finalPriceLoyal] = LoyalService::applyLoyal($totalPrice, $loyal);
+
+                $qrFinalPrice = $finalPriceLoyal;
+            }
+        }
+        $bankID = '970422';
+        $bankNumber = '6698589999';
+        $qrTemplate = 'compact2';
+        $accountName = "Le Van Cat";
+        $accountName = str_replace(' ', '%20', $accountName);
+
+        $randomString = RandomHelper::generateRandomString(10);
+        $description = "$randomString$qrFinalPrice";
+
+        $template = "https://img.vietqr.io/image/$bankID-$bankNumber-$qrTemplate.png?amount=$qrFinalPrice&addInfo=$description&accountName=$accountName";
+
+        $data = [
+            'qr' => $template,
+            'random' => $randomString,
+            'final_price' => $qrFinalPrice,
+        ];
+
+        return response($data, 200);
+    }
+
+    public function checkBank(CheckBankRequest $request) {
+        $curl = curl_init();
+        $api_key = 'AK_CS.8398923016c411ef94aec1f284a18943.cB6ERVVRuNM1QWuoTI0TOnnTwlSHHIcaVnbWuXcg3sKtWXQOz4RMtj58OnZO7Uqd2hpnlSUa';
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://oauth.casso.vn/v2/transactions",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: apikey $api_key",
+    "Content-Type: application/json"
+  ),
+));
+        $amount = $request->get('amount');
+        $random = $request->get('random_code');
+
+        $descriptionTemplate = "$random$amount";
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+
+        ['data' => $data] = json_decode($response, true);
+
+        $records = $data['records'];
+
+
+        foreach ($records as $record) {
+            $description = $record['description'];
+
+            if (str_contains($description, $descriptionTemplate) && $record['amount'] == $amount) {
+                $data = [
+                    'isSuccess' => true,
+                    'message' => 'Thanh toán thành công',
+                ];
+
+                return response($data, 200);
+            }
+        }
+
+        $data = [
+            'isSuccess' => false,
+            'message' => 'Thanh toán thất bại',
+        ];
+
+        return response()->json($data);
     }
 
     public function store(CheckoutInvoiceRequest $request)
