@@ -30,8 +30,7 @@ Route::prefix('/v1')->group(function () {
             Route::put('/loyals/{loyal}', [\App\Http\Controllers\Api\LoyalController::class, 'update']);
             Route::delete('/loyals/{loyal}', [\App\Http\Controllers\Api\LoyalController::class, 'destroy']);
             Route::get('/loyals/{loyal}', [\App\Http\Controllers\Api\LoyalController::class, 'show']);
-
-
+            Route::delete('/loyals/bulk-delete', [\App\Http\Controllers\Api\LoyalController::class, 'destroyMultiple']);
 
             Route::get('/staffs', [\App\Http\Controllers\Api\StaffController::class, 'index']);
             Route::post('/staffs', [\App\Http\Controllers\Api\StaffController::class, 'store']);
