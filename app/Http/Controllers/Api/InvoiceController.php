@@ -8,6 +8,8 @@ use App\Http\Requests\MultipleDestroyRequest;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Services\CartService;
+use App\Services\CustomerService;
+use App\Services\LoyalService;
 use App\Services\VoucherService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +23,74 @@ class InvoiceController extends Controller
         return response()->json($invoices);
     }
 
+    public function getTotalCart(CheckoutInvoiceRequest $request) {
+        $cart = $request->input('cart');
+        $totalPrice = CartService::calculateCart($cart);
+
+        $voucherCode = $request->input('voucher_code');
+        $customerPhoneNumber = $request->input('customer_phone_number');
+
+        if ($voucherCode) {
+            [
+                'isAvailable' => $isVoucherAvailable,
+                'voucherType' => $voucherType,
+                'voucherAmount' => $voucherAmount,
+                'quantity' => $quantity,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ] = VoucherService::verifyVoucher($voucherCode);
+
+            $today = date('Y-m-d H:i:s');
+
+            if (! $isVoucherAvailable || $quantity < 1 || $today > $endDate || $today < $startDate) {
+                $data = [
+                    'isSuccess' => false,
+                    'message' => 'Voucher không hợp lệ hoặc đã hết hạn sử dụng, vui lòng xoá hoặc kiểm tra lại',
+                ];
+
+                return response($data, 200);
+            }
+
+            [$_, $finalPrice] = CartService::applyVoucher($totalPrice, $voucherType, $voucherAmount);
+
+            if ($customerPhoneNumber) {
+                $loyal = CustomerService::getCurrentLoyal($customerPhoneNumber);
+
+                [$_, $finalPriceLoyal] = LoyalService::applyLoyal($finalPrice, $loyal);
+
+                $data = [
+                    'total_price' => $finalPriceLoyal,
+                ];
+
+                return response($data, 200);
+            } else {
+                $data = [
+                    'total_price' => $finalPrice,
+                ];
+
+                return response($data, 200);
+            }
+        } else {
+            if ($customerPhoneNumber) {
+                $loyal = CustomerService::getCurrentLoyal($customerPhoneNumber);
+
+                [$_, $finalPriceLoyal] = LoyalService::applyLoyal($totalPrice, $loyal);
+
+                $data = [
+                    'total_price' => $finalPriceLoyal,
+                ];
+
+                return response($data, 200);
+            }
+        }
+
+        $data = [
+            'total_price' => $totalPrice,
+        ];
+
+        return response($data, 200);
+    }
+
     public function store(CheckoutInvoiceRequest $request)
     {
         $cart = $request->input('cart');
@@ -28,6 +98,14 @@ class InvoiceController extends Controller
         $customerPhoneNumber = $request->input('customer_phone_number');
         $tableNumber = $request->input('table_number');
         $staff = Auth::user();
+
+        if ($customerPhoneNumber) {
+            $customer = Customer::where('phone_number', $customerPhoneNumber)->first();
+
+            if (! $customer) {
+                $customer = CustomerService::createCustomer($customerPhoneNumber);
+            }
+        }
 
         if ($voucherCode) {
             [
@@ -52,21 +130,38 @@ class InvoiceController extends Controller
             }
 
 
+            $customer = Customer::where('phone_number', $customerPhoneNumber)->first();
+
             $totalPrice = CartService::calculateCart($cart);
             [$discountPrice, $finalPrice] = CartService::applyVoucher($totalPrice, $voucherType, $voucherAmount);
 
-            $customer = Customer::where('phone_number', $customerPhoneNumber)->first();
+            if ($customerPhoneNumber) {
+                $loyal = CustomerService::getCurrentLoyal($customerPhoneNumber);
 
-            $invoice = Invoice::create([
-                'user_id' => $staff->id,
-                'customer_id' => $customer ? $customer->id : null,
-                'table_number' => $tableNumber,
-                'voucher_code' => $voucherCode,
-                'note' => null,
-                'total_price' => $totalPrice,
-                'discount_price' => $discountPrice,
-                'final_price' => $finalPrice,
-            ]);
+                [$discountPriceLoyal, $finalPriceLoyal] = LoyalService::applyLoyal($finalPrice, $loyal);
+
+                $invoice = Invoice::create([
+                    'user_id' => $staff->id,
+                    'customer_id' => $customer ? $customer->id : null,
+                    'table_number' => $tableNumber,
+                    'voucher_code' => $voucherCode,
+                    'note' => null,
+                    'total_price' => $totalPrice,
+                    'discount_price' => $discountPriceLoyal,
+                    'final_price' => $finalPriceLoyal,
+                ]);
+            } else {
+                $invoice = Invoice::create([
+                    'user_id' => $staff->id,
+                    'customer_id' => $customer ? $customer->id : null,
+                    'table_number' => $tableNumber,
+                    'voucher_code' => $voucherCode,
+                    'note' => null,
+                    'total_price' => $totalPrice,
+                    'discount_price' => $discountPrice,
+                    'final_price' => $finalPrice,
+                ]);
+            }
 
             CartService::storeInvoiceDetail($cart, $invoice->id);
 
@@ -77,16 +172,33 @@ class InvoiceController extends Controller
             $totalPrice = CartService::calculateCart($cart);
             $customer = Customer::where('phone_number', $customerPhoneNumber)->first();
 
-            $invoice = Invoice::create([
-                'user_id' => $staff->id,
-                'customer_id' => $customer ? $customer->id : null,
-                'table_number' => $tableNumber,
-                'voucher_code' => null,
-                'note' => null,
-                'total_price' => $totalPrice,
-                'discount_price' => 0,
-                'final_price' => $totalPrice,
-            ]);
+            if ($customerPhoneNumber) {
+                $loyal = CustomerService::getCurrentLoyal($customerPhoneNumber);
+
+                [$discountPriceLoyal, $finalPriceLoyal] = LoyalService::applyLoyal($totalPrice, $loyal);
+
+                $invoice = Invoice::create([
+                    'user_id' => $staff->id,
+                    'customer_id' => $customer ? $customer->id : null,
+                    'table_number' => $tableNumber,
+                    'voucher_code' => null,
+                    'note' => null,
+                    'total_price' => $totalPrice,
+                    'discount_price' => $discountPriceLoyal,
+                    'final_price' => $finalPriceLoyal,
+                ]);
+            } else {
+                $invoice = Invoice::create([
+                    'user_id' => $staff->id,
+                    'customer_id' => $customer ? $customer->id : null,
+                    'table_number' => $tableNumber,
+                    'voucher_code' => null,
+                    'note' => null,
+                    'total_price' => $totalPrice,
+                    'discount_price' => 0,
+                    'final_price' => $totalPrice,
+                ]);
+            }
 
             CartService::storeInvoiceDetail($cart, $invoice->id);
         }

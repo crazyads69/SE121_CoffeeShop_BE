@@ -25,6 +25,14 @@ Route::prefix('/v1')->group(function () {
             Route::delete('/products/{product}', [\App\Http\Controllers\Api\ProductController::class, 'destroy']);
             Route::get('/products/{product}', [\App\Http\Controllers\Api\ProductController::class, 'show']);
 
+            Route::get('/loyals', [\App\Http\Controllers\Api\LoyalController::class, 'index']);
+            Route::post('/loyals', [\App\Http\Controllers\Api\LoyalController::class, 'store']);
+            Route::put('/loyals/{loyal}', [\App\Http\Controllers\Api\LoyalController::class, 'update']);
+            Route::delete('/loyals/{loyal}', [\App\Http\Controllers\Api\LoyalController::class, 'destroy']);
+            Route::get('/loyals/{loyal}', [\App\Http\Controllers\Api\LoyalController::class, 'show']);
+
+
+
             Route::get('/staffs', [\App\Http\Controllers\Api\StaffController::class, 'index']);
             Route::post('/staffs', [\App\Http\Controllers\Api\StaffController::class, 'store']);
             Route::put('/staffs/{staff}', [\App\Http\Controllers\Api\StaffController::class, 'update']);
@@ -53,7 +61,9 @@ Route::prefix('/v1')->group(function () {
         });
 
         Route::post('/vouchers-verify', [\App\Http\Controllers\Api\VoucherVerifyController::class, '__invoke']);
+        Route::post('/loyals-verify', [\App\Http\Controllers\Api\LoyalVerifyController::class, '__invoke']);
         Route::post('/invoices', [\App\Http\Controllers\Api\InvoiceController::class, 'store']);
+        Route::post('/invoices/get-total-price', [\App\Http\Controllers\Api\InvoiceController::class, 'getTotalCart']);
         Route::post('/customers', [\App\Http\Controllers\Api\CustomerController::class, 'store']);
         Route::get('/products', [\App\Http\Controllers\Api\ProductController::class, 'index']);
         Route::get('/invoices-pending', [\App\Http\Controllers\Api\InvoiceController::class, 'getPending']);
@@ -67,3 +77,4 @@ Route::prefix('/v1')->group(function () {
     Route::post('/signup', [AuthController::class, 'signup']);
     Route::post('/login', [AuthController::class, 'login'])->name('login');
 });
+

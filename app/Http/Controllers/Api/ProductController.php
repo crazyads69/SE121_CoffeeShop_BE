@@ -67,7 +67,7 @@ class ProductController extends Controller
             return response()->json($product)->setStatusCode(201);
         }
 
-        $product = Product::create($request->all());
+        $product = Product::create($request->validated());
 
         return response()->json($product)->setStatusCode(201);
     }
@@ -88,13 +88,13 @@ class ProductController extends Controller
             return response()->json($product)->setStatusCode(201);
         }
 
-        $product->update($request->all());
+        $product->update($request->validated());
 
-        return response()->json($product);
+        return response()->json($product)->setStatusCode(201);
     }
     public function show(Product $product)
     {
-        return response()->json($product);
+        return response()->json($product)->setStatusCode(200);
     }
 
     public function destroy(Product $product)
