@@ -32,6 +32,10 @@ Route::prefix('/v1')->group(function () {
             Route::get('/loyals/{loyal}', [\App\Http\Controllers\Api\LoyalController::class, 'show']);
             Route::delete('/loyals/bulk-delete', [\App\Http\Controllers\Api\LoyalController::class, 'destroyMultiple']);
 
+            Route::get('/bank-config', [\App\Http\Controllers\Api\BankConfigController::class, 'getBankConfig']);
+            Route::post('/bank-config', [\App\Http\Controllers\Api\BankConfigController::class, 'storeBankConfig']);
+            Route::get('/bank-config-test', [\App\Http\Controllers\Api\BankConfigController::class, 'testBankConfig']);
+
             Route::get('/staffs', [\App\Http\Controllers\Api\StaffController::class, 'index']);
             Route::post('/staffs', [\App\Http\Controllers\Api\StaffController::class, 'store']);
             Route::put('/staffs/{staff}', [\App\Http\Controllers\Api\StaffController::class, 'update']);
@@ -61,6 +65,8 @@ Route::prefix('/v1')->group(function () {
 
         Route::post('/vouchers-verify', [\App\Http\Controllers\Api\VoucherVerifyController::class, '__invoke']);
         Route::post('/loyals-verify', [\App\Http\Controllers\Api\LoyalVerifyController::class, '__invoke']);
+        Route::post('/invoices/get-qr', [\App\Http\Controllers\Api\InvoiceController::class, 'getQR']);
+        Route::post('/invoices/check-bank', [\App\Http\Controllers\Api\InvoiceController::class, 'checkBank']);
         Route::post('/invoices', [\App\Http\Controllers\Api\InvoiceController::class, 'store']);
         Route::post('/invoices/get-total-price', [\App\Http\Controllers\Api\InvoiceController::class, 'getTotalCart']);
         Route::post('/customers', [\App\Http\Controllers\Api\CustomerController::class, 'store']);
