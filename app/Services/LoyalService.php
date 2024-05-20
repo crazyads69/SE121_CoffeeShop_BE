@@ -25,7 +25,7 @@ class LoyalService
 
     public static function getCurrentLoyal(float $totalSpent) {
         $loyals = Loyal::all();
-        $currentLoyal = null;
+        $currentLoyal = new Loyal();
 
         foreach ($loyals as $loyal) {
             if ($totalSpent >= $loyal->spending_min && $totalSpent <= $loyal->spending_max) {
