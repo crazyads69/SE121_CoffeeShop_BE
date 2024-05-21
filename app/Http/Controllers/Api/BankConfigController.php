@@ -12,11 +12,10 @@ class BankConfigController extends Controller
     public function getBankConfig() {
         $bankConfigs = BankConfig::all()->toArray();
 
-
         if (empty($bankConfigs)) {
             $bankConfig = BankConfig::create([
-                'bank_id' => '970422',
-                'bank_number' => '1234567890',
+                'bank_id' => 'MB',
+                'bank_number' => '970422XXXXXXX',
                 'bank_account_name' => 'Shopee Coffee',
                 'api_key' => 'XXX',
                 ]);
