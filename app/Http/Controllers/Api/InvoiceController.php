@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CheckBankRequest;
 use App\Http\Requests\CheckoutInvoiceRequest;
 use App\Http\Requests\MultipleDestroyRequest;
+use App\Models\BankConfig;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Services\CartService;
@@ -145,10 +146,19 @@ class InvoiceController extends Controller
                 $qrFinalPrice = $finalPriceLoyal;
             }
         }
-        $bankID = '970422';
-        $bankNumber = '6698589999';
+
+        $bankConfigs = BankConfig::all()->toArray();
+
+        if (empty($bankConfigs)) {
+            return response()->json(['error' => 'Bank config not found'])->setStatusCode(400);
+        }
+
+        $bankConfig = $bankConfigs[0];
+
+        $bankID = $bankConfig['bank_id'];
+        $bankNumber = $bankConfig['bank_number'];
         $qrTemplate = 'compact2';
-        $accountName = "Le Van Cat";
+        $accountName = $bankConfig['bank_account_name'];
         $accountName = str_replace(' ', '%20', $accountName);
 
         $randomString = RandomHelper::generateRandomString(10);
@@ -158,8 +168,8 @@ class InvoiceController extends Controller
 
         $data = [
             'qr' => $template,
-            'random' => $randomString,
-            'final_price' => $qrFinalPrice,
+            'random_code' => $randomString,
+            'amount' => $qrFinalPrice,
         ];
 
         return response($data, 200);
