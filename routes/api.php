@@ -61,6 +61,11 @@ Route::prefix('/v1')->group(function () {
             Route::delete('/customers/bulk-delete', [\App\Http\Controllers\Api\CustomerController::class, 'destroyMultiple']);
             Route::delete('/customers/{customer}', [\App\Http\Controllers\Api\CustomerController::class, 'destroy']);
             Route::get('/customers/{customer}', [\App\Http\Controllers\Api\CustomerController::class, 'show']);
+
+            Route::get('/dashboard/summary-statistic-today', [\App\Http\Controllers\Api\DashboardController::class, 'getSummaryStatisticToday']);
+            Route::get('/dashboard/income-by-time', [\App\Http\Controllers\Api\DashboardController::class, 'getIncomeByTime']);
+            Route::get('/dashboard/top-product-by-time', [\App\Http\Controllers\Api\DashboardController::class, 'getTopProductByTime']);
+            Route::get('/dashboard/total-customer-by-time', [\App\Http\Controllers\Api\DashboardController::class, 'getTotalCustomerByTime']);
         });
 
         Route::post('/vouchers-verify', [\App\Http\Controllers\Api\VoucherVerifyController::class, '__invoke']);
