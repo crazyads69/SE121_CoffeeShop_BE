@@ -9,7 +9,7 @@ class StoreBankConfigRequest extends ApiFormRequest
         return [
             'bank_id' => 'required|string',
             'bank_number' => 'required|numeric',
-            'bank_account_name' => 'required|numeric',
+            'bank_account_name' => 'required|string',
             'api_key' => 'required|string',
         ];
     }

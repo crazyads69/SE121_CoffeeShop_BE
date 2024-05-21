@@ -26,7 +26,8 @@ class InvoiceController extends Controller
         return response()->json($invoices);
     }
 
-    public function getTotalCart(CheckoutInvoiceRequest $request) {
+    public function getTotalCart(CheckoutInvoiceRequest $request)
+    {
         $cart = $request->input('cart');
         $totalPrice = CartService::calculateCart($cart);
 
@@ -45,7 +46,7 @@ class InvoiceController extends Controller
 
             $today = date('Y-m-d H:i:s');
 
-            if (! $isVoucherAvailable || $quantity < 1 || $today > $endDate || $today < $startDate) {
+            if (!$isVoucherAvailable || $quantity < 1 || $today > $endDate || $today < $startDate) {
                 $data = [
                     'isSuccess' => false,
                     'message' => 'Voucher không hợp lệ hoặc đã hết hạn sử dụng, vui lòng xoá hoặc kiểm tra lại',
@@ -94,7 +95,8 @@ class InvoiceController extends Controller
         return response($data, 200);
     }
 
-    public function getQR(CheckoutInvoiceRequest $request) {
+    public function getQR(CheckoutInvoiceRequest $request)
+    {
         $cart = $request->input('cart');
         $totalPrice = CartService::calculateCart($cart);
 
@@ -116,7 +118,7 @@ class InvoiceController extends Controller
 
             $today = date('Y-m-d H:i:s');
 
-            if (! $isVoucherAvailable || $quantity < 1 || $today > $endDate || $today < $startDate) {
+            if (!$isVoucherAvailable || $quantity < 1 || $today > $endDate || $today < $startDate) {
                 $data = [
                     'isSuccess' => false,
                     'message' => 'Voucher không hợp lệ hoặc đã hết hạn sử dụng, vui lòng xoá hoặc kiểm tra lại',
@@ -175,9 +177,18 @@ class InvoiceController extends Controller
         return response($data, 200);
     }
 
-    public function checkBank(CheckBankRequest $request) {
+    public function checkBank(CheckBankRequest $request)
+    {
+        $bankConfigs = BankConfig::all()->toArray();
+
+        if (empty($bankConfigs)) {
+            return response()->json(['error' => 'Bank config not found'])->setStatusCode(400);
+        }
+
+        $bankConfig = $bankConfigs[0];
+
         $curl = curl_init();
-        $api_key = 'AK_CS.8398923016c411ef94aec1f284a18943.cB6ERVVRuNM1QWuoTI0TOnnTwlSHHIcaVnbWuXcg3sKtWXQOz4RMtj58OnZO7Uqd2hpnlSUa';
+        $api_key = $bankConfig['api_key'];
 
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://oauth.casso.vn/v2/transactions",
@@ -186,9 +197,10 @@ class InvoiceController extends Controller
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => array(
                 "Authorization: apikey $api_key",
-    "Content-Type: application/json"
-  ),
-));
+                "Content-Type: application/json"
+            ),
+        )
+        );
         $amount = $request->get('amount');
         $random = $request->get('random_code');
 
@@ -236,7 +248,7 @@ class InvoiceController extends Controller
         if ($customerPhoneNumber) {
             $customer = Customer::where('phone_number', $customerPhoneNumber)->first();
 
-            if (! $customer) {
+            if (!$customer) {
                 $customer = CustomerService::createCustomer($customerPhoneNumber);
             }
         }
@@ -254,7 +266,7 @@ class InvoiceController extends Controller
 
             $today = date('Y-m-d H:i:s');
 
-            if (! $isVoucherAvailable || $quantity < 1 || $today > $endDate || $today < $startDate) {
+            if (!$isVoucherAvailable || $quantity < 1 || $today > $endDate || $today < $startDate) {
                 $data = [
                     'isSuccess' => false,
                     'message' => 'Voucher không hợp lệ hoặc đã hết hạn sử dụng, vui lòng xoá hoặc kiểm tra lại',
