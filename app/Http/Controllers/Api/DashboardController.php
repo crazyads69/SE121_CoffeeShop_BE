@@ -3,92 +3,227 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DashboardRequest;
+use App\Models\Invoice;
 
 class DashboardController extends Controller
 {
     public function getSummaryStatisticToday() {
+        $startDay = time() - 86400 + (time() % 86400);
+        $endDay = $startDay + 86400;
+
+        $startYesterday = $startDay - 86400;
+        $endYesterday = $startDay;
+
+        $totalIncomeToday = 0;
+        $totalIncomeYesterday = 0;
+        $totalInvoiceToday = 0;
+        $totalInvoiceYesterday = 0;
+        $totalIncomePending = 0;
+        $totalCustomerToday = 0;
+        $totalCustomerYesterday = 0;
+
+        $invoices = Invoice::all();
+
+        foreach($invoices as $invoice) {
+            if ($invoice->created_at->timestamp >= $startDay && $invoice->created_at->timestamp <= $endDay) {
+                $totalIncomeToday += $invoice->total_price;
+                $totalInvoiceToday++;
+                if ($invoice->status == 'pending') {
+                    $totalIncomePending += $invoice->total;
+                }
+
+                $invoicesDetails = $invoice->invoiceDetails()->get();
+
+                foreach ($invoicesDetails as $invoiceDetail) {
+                    $totalCustomerToday += $invoiceDetail->quantity;
+                }
+            }
+
+            if ($invoice->created_at->timestamp >= $startYesterday && $invoice->created_at->timestamp <= $endYesterday) {
+                $totalIncomeYesterday += $invoice->total;
+                $totalInvoiceYesterday++;
+
+                $totalCustomerYesterday += $invoice->invoiceDetails()->count();
+
+                foreach ($invoice->invoiceDetails()->get() as $invoiceDetail) {
+                    $totalCustomerYesterday += $invoiceDetail->quantity;
+                }
+            }
+        }
+
+
         return response()->json([
-            'total_income_today' => 10,
-            'total_income_yesterday' => 1000000,
-            'total_invoice_today' => 100,
-            'total_invoice_yesterday' => 50,
-            'total_income_pending' => 50,
-            'total_customer_today' => 10,
-            'total_customer_yesterday' => 5,
+            'total_income_today' => $totalIncomeToday,
+            'total_income_yesterday' => $totalIncomeYesterday,
+            'total_invoice_today' => $totalInvoiceToday,
+            'total_invoice_yesterday' => $totalInvoiceYesterday,
+            'total_income_pending' => $totalIncomePending,
+            'total_customer_today' => $totalCustomerToday,
+            'total_customer_yesterday' => $totalCustomerYesterday,
         ]);
     }
 
-    public function getIncomeByTime() {
-        return response()->json([
-            'income_by_time' => [
-                ['time' => '00:00 - 01:00', 'income' => 100000],
-                ['time' => '01:00 - 02:00', 'income' => 200000],
-                ['time' => '02:00 - 03:00', 'income' => 300000],
-                ['time' => '03:00 - 04:00', 'income' => 400000],
-                ['time' => '04:00 - 05:00', 'income' => 500000],
-                ['time' => '05:00 - 06:00', 'income' => 600000],
-                ['time' => '06:00 - 07:00', 'income' => 700000],
-                ['time' => '07:00 - 08:00', 'income' => 800000],
-                ['time' => '08:00 - 09:00', 'income' => 900000],
-                ['time' => '09:00 - 10:00', 'income' => 1000000],
-                ['time' => '10:00 - 11:00', 'income' => 1100000],
-                ['time' => '11:00 - 12:00', 'income' => 1200000],
-                ['time' => '12:00 - 13:00', 'income' => 1300000],
-                ['time' => '13:00 - 14:00', 'income' => 1400000],
-                ['time' => '14:00 - 15:00', 'income' => 1500000],
-                ['time' => '15:00 - 16:00', 'income' => 1600000],
-                ['time' => '16:00 - 17:00', 'income' => 1700000],
-                ['time' => '17:00 - 18:00', 'income' => 1800000],
-                ['time' => '18:00 - 19:00', 'income' => 1900000],
-                ['time' => '19:00 - 20:00', 'income' => 2000000],
-            ]]);
+    private function getGranularity($distanceDate) {
+        if ($distanceDate <= 29) {
+            return 'day';
+        }
+
+        if ($distanceDate <= 87) {
+            return 'week';
+        }
+
+        if ($distanceDate <= 367) {
+            return 'month';
+        }
+
+        if ($distanceDate <= 1095) {
+            return 'quarter';
+        }
+
+        return 'year';
     }
 
-    public function getTopProductByTime() {
-        return response()->json([
-            'top_product_by_time' => [
-                ['time' => '00:00 - 01:00', 'product' => 'Coca Cola', 'quantity' => 10],
-                ['time' => '01:00 - 02:00', 'product' => 'Pepsi', 'quantity' => 20],
-                ['time' => '02:00 - 03:00', 'product' => 'Fanta', 'quantity' => 30],
-                ['time' => '03:00 - 04:00', 'product' => 'Sprite', 'quantity' => 40],
-                ['time' => '04:00 - 05:00', 'product' => '7 Up', 'quantity' => 50],
-                ['time' => '05:00 - 06:00', 'product' => 'Mirinda', 'quantity' => 60],
-                ['time' => '06:00 - 07:00', 'product' => 'Red Bull', 'quantity' => 70],
-                ['time' => '07:00 - 08:00', 'product' => 'Monster', 'quantity' => 80],
-                ['time' => '08:00 - 09:00', 'product' => 'Tiger', 'quantity' => 90],
-                ['time' => '09:00 - 10:00', 'product' => 'Heineken', 'quantity' => 100],
-                ['time' => '10:00 - 11:00', 'product' => 'Tiger', 'quantity' => 110],
-                ['time' => '11:00 - 12:00', 'product' => 'Heineken', 'quantity' => 120],
-                ['time' => '12:00 - 13:00', 'product' => 'Tiger', 'quantity' => 130],
-                ['time' => '13:00 - 14:00', 'product' => 'Heineken', 'quantity' => 140],
-                ['time' => '14:00 - 15:00', 'product' => 'Tiger', 'quantity' => 150],
-                ['time' => '15:00 - 16:00', 'product' => 'Heineken', 'quantity' => 160]]]);
+    private function getTimeWindows($startDate, $endDate, $granularity) {
+        $times = [];
+
+        $times[] = $startDate;
+
+        while ($endDate - $startDate > 0) {
+            if ($granularity == 'day') {
+                $startDate += 86400;
+            }
+
+            if ($granularity == 'week') {
+                $startDate += 86400*7;
+            }
+
+            if ($granularity == 'month') {
+                $startDate += 86400*30;
+            }
+
+            if ($granularity == 'quarter') {
+                $startDate += 86400*90;
+            }
+
+            if ($granularity == 'year') {
+                $startDate += 86400*365;
+            }
+
+            $times[] = $startDate;
+        }
+
+        $lastElement = $times[count($times) - 1];
+        $nearLastElement = $times[count($times) - 2];
+
+        if ($lastElement - $nearLastElement <= 86400) {
+            array_pop($times);
+            array_pop($times);
+
+            $times[] = $lastElement;
+        }
+
+        return $times;
     }
 
-    public function getTotalCustomerByTime() {
-        return response()->json([
-            'total_customer_by_time' => [
-                ['time' => '00:00 - 01:00', 'total_customer' => 10],
-                ['time' => '01:00 - 02:00', 'total_customer' => 20],
-                ['time' => '02:00 - 03:00', 'total_customer' => 30],
-                ['time' => '03:00 - 04:00', 'total_customer' => 40],
-                ['time' => '04:00 - 05:00', 'total_customer' => 50],
-                ['time' => '05:00 - 06:00', 'total_customer' => 60],
-                ['time' => '06:00 - 07:00', 'total_customer' => 70],
-                ['time' => '07:00 - 08:00', 'total_customer' => 80],
-                ['time' => '08:00 - 09:00', 'total_customer' => 90],
-                ['time' => '09:00 - 10:00', 'total_customer' => 100],
-                ['time' => '10:00 - 11:00', 'total_customer' => 110],
-                ['time' => '11:00 - 12:00', 'total_customer' => 120],
-                ['time' => '12:00 - 13:00', 'total_customer' => 130],
-                ['time' => '13:00 - 14:00', 'total_customer' => 140],
-                ['time' => '14:00 - 15:00', 'total_customer' => 150],
-                ['time' => '15:00 - 16:00', 'total_customer' => 160],
-                ['time' => '16:00 - 17:00', 'total_customer' => 170],
-                ['time' => '17:00 - 18:00', 'total_customer' => 180],
-                ['time' => '18:00 - 19:00', 'total_customer' => 190],
-                ['time' => '19:00 - 20:00', 'total_customer' => 200],
-            ]]);
+    private function getTimes($startDate, $endDate) {
+        $distanceDate = (int)($endDate - $startDate)/86400;
+
+        if ($distanceDate <= 7) {
+            $startDate = $endDate - 86000*7;
+        }
+
+        $granularity = $this->getGranularity($distanceDate);
+
+        $times = $this->getTimeWindows((int)$startDate, (int)$endDate, $granularity);
+
+        return $times;
     }
 
+    public function getIncomeByTime(DashboardRequest $request) {
+        $startDate = (int)$request->get('start_date');
+        $endDate = (int)$request->get('end_date');
+
+        $times = $this->getTimes($startDate, $endDate);
+
+        $invoices = Invoice::all();
+
+        $incomesByTime = [];
+
+        for($i = 0; $i < count($times) - 1; $i++) {
+            $start = $times[$i];
+            $end = $times[$i + 1];
+
+            $incomesByTime[$times[$i]] = 0;
+
+            foreach ($invoices as $invoice) {
+                if ($invoice->created_at->timestamp >= $start && $invoice->created_at->timestamp <= $end) {
+                    $incomesByTime[$times[$i]] += $invoice->total_price;
+                }
+            }
+        }
+
+        return response()->json($incomesByTime);
+    }
+
+    public function getTopProductByTime(DashboardRequest $request) {
+        $startDate = (int)$request->get('start_date');
+        $endDate = (int)$request->get('end_date');
+
+        $topProducts = [];
+
+        $invoicesAll = Invoice::all();
+        $invoices = [];
+
+        foreach ($invoicesAll as $invoice) {
+            if ($invoice->created_at->timestamp >= $startDate && $invoice->created_at->timestamp <= $endDate) {
+                $invoices[] = $invoice;
+            }
+        }
+
+        foreach ($invoices as $invoice) {
+            $invoiceDetails = $invoice->invoiceDetails;
+
+            foreach ($invoiceDetails as $invoiceDetail) {
+                $productName = $invoiceDetail->product_name;
+
+                if (!isset($topProducts[$productName])) {
+                    $topProducts[$productName] = $invoiceDetail->quantity;
+                } else {
+                    $topProducts[$productName] += $invoiceDetail->quantity;
+                }
+            }
+        }
+
+        return response()->json($topProducts);
+    }
+
+    public function getTotalCustomerByTime(DashboardRequest $request) {
+        $startDate = (int)$request->get('start_date');
+        $endDate = (int)$request->get('end_date');
+
+        $times = $this->getTimes($startDate, $endDate);
+        $invoices = Invoice::all();
+
+        $customersByTime = [];
+
+        for($i = 0; $i < count($times) - 1; $i++) {
+            $start = $times[$i];
+            $end = $times[$i + 1];
+
+            $customersByTime[$times[$i]] = 0;
+
+            foreach ($invoices as $invoice) {
+                if ($invoice->created_at->timestamp >= $start && $invoice->created_at->timestamp <= $end) {
+                    $invoiceDetails = $invoice->invoiceDetails;
+
+                    foreach ($invoiceDetails as $invoiceDetail) {
+                        $customersByTime[$times[$i]] += $invoiceDetail->quantity;
+                    }
+                }
+            }
+        }
+
+        return response()->json($customersByTime);
+    }
 }
