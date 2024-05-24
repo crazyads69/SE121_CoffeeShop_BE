@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MultipleDestroyRequest;
 use App\Http\Requests\StoreVoucherRequest;
+use App\Http\Requests\UpdateVoucherRequest;
 use App\Models\Voucher;
 
 class VoucherController extends Controller
@@ -31,7 +32,7 @@ class VoucherController extends Controller
         return response()->json($voucher)->setStatusCode('201');
     }
 
-    public function update(StoreVoucherRequest $request, Voucher $voucher)
+    public function update(UpdateVoucherRequest $request, Voucher $voucher)
     {
         $startDate = date('Y-m-d', strtotime($request->input('start_date')));
         $endDate = date('Y-m-d', strtotime($request->input('end_date')));

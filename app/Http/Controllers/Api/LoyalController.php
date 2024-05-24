@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\MultipleDestroyRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLoyalRequest;
 use App\Models\Loyal;
