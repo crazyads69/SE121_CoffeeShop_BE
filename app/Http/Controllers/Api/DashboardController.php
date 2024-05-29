@@ -195,6 +195,8 @@ class DashboardController extends Controller
             }
         }
 
+        arsort($topProducts);
+
         return response()->json($topProducts);
     }
 
