@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Invoice;
 use App\Models\InvoiceDetail;
+use App\Models\Product;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class InvoiceSeeder extends Seeder
@@ -12,6 +14,8 @@ class InvoiceSeeder extends Seeder
     {
         Invoice::truncate();
         InvoiceDetail::truncate();
+
+        $products = Product::all();
 
         $invoices = [
             [
@@ -25,10 +29,6 @@ class InvoiceSeeder extends Seeder
                 'final_price' => 151000,
             ],
         ];
-
-        foreach ($invoices as $invoice) {
-            Invoice::query()->create($invoice);
-        }
 
         $invoiceDetails = [
             [
@@ -46,6 +46,46 @@ class InvoiceSeeder extends Seeder
                 'product_name' => 'Trà lipton',
             ],
         ];
+
+        for ($i = 0; $i < 200; $i++) {
+            // Generate random date within the past 2 weeks
+            $totalPrice = rand(100000, 500000); // Adjust total price range
+            $randomDay = Carbon::now()->subDays(rand(1, 28));
+
+            $invoiceAdd = [
+                'user_id' => rand(1, 10), // Adjust user ID range
+                'table_number' => rand(1, 10), // Adjust table number range (optional)
+                'total_price' => $totalPrice, // Adjust total price range
+                'final_price' => $totalPrice,
+                'status' => 'finish', // Adjust status options (e.g., 'pending', 'cancelled')
+                'created_at' => $randomDay,
+            ];
+
+            // Generate random number of invoice details between 1 and 5 (adjust as needed)
+            $totalPrice = 0;
+            $numberOfDetails = rand(1, 5);
+            for ($j = 0; $j < $numberOfDetails; $j++) {
+                $randomProduct = $products->random();
+
+                $invoiceDetails[] = [
+                    'invoice_id' => $i + 1, // + 1 to account for zero-based indexing
+                    'product_id' => $randomProduct->id, // Adjust product ID range
+                    'quantity' => rand(1, 10), // Adjust quantity range
+                    'unit_price' => $randomProduct->unit_price, // Adjust unit price range
+                    'product_name' => $randomProduct->name,
+                ];
+
+                $totalPrice += $randomProduct->unit_price * $invoiceDetails[$j]['quantity'];
+            }
+
+            $invoiceAdd['total_price'] = $totalPrice;
+
+            $invoices[] = $invoiceAdd;
+        }
+
+        foreach ($invoices as $invoice) {
+            Invoice::query()->create($invoice);
+        }
 
         foreach ($invoiceDetails as $invoiceDetail) {
             InvoiceDetail::query()->create($invoiceDetail);

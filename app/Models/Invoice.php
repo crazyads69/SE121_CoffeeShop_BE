@@ -23,6 +23,7 @@ class Invoice extends Model
         'discount_price',
         'final_price',
         'status',
+        'created_at',
     ];
 
     public function invoiceDetails()
