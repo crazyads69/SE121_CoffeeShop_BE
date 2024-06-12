@@ -44,10 +44,12 @@ Route::prefix('/v1')->group(function () {
             Route::get('/staffs/{staff}', [\App\Http\Controllers\Api\StaffController::class, 'show']);
 
             Route::get('/invoices', [\App\Http\Controllers\Api\InvoiceController::class, 'index']);
+            Route::get('/invoices/total-income', [\App\Http\Controllers\Api\InvoiceController::class, 'getTotalIncome']);
             Route::put('/invoices/{invoice}', [\App\Http\Controllers\Api\InvoiceController::class, 'update']);
             Route::delete('/invoices/bulk-delete', [\App\Http\Controllers\Api\InvoiceController::class, 'destroyMultiple']);
             Route::delete('/invoices/{invoice}', [\App\Http\Controllers\Api\InvoiceController::class, 'destroy']);
             Route::get('/invoices/{invoice}', [\App\Http\Controllers\Api\InvoiceController::class, 'show']);
+
 
             Route::get('/vouchers', [\App\Http\Controllers\Api\VoucherController::class, 'index']);
             Route::post('/vouchers', [\App\Http\Controllers\Api\VoucherController::class, 'store']);

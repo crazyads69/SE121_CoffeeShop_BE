@@ -47,16 +47,13 @@ class InvoiceSeeder extends Seeder
             ],
         ];
 
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < 300; $i++) {
             // Generate random date within the past 2 weeks
-            $totalPrice = rand(100000, 500000); // Adjust total price range
-            $randomDay = Carbon::now()->subDays(rand(1, 28));
+            $randomDay = Carbon::now()->subDays(rand(0, 28));
 
             $invoiceAdd = [
                 'user_id' => rand(1, 10), // Adjust user ID range
                 'table_number' => rand(1, 10), // Adjust table number range (optional)
-                'total_price' => $totalPrice, // Adjust total price range
-                'final_price' => $totalPrice,
                 'status' => 'finish', // Adjust status options (e.g., 'pending', 'cancelled')
                 'created_at' => $randomDay,
             ];
@@ -79,6 +76,7 @@ class InvoiceSeeder extends Seeder
             }
 
             $invoiceAdd['total_price'] = $totalPrice;
+            $invoiceAdd['final_price'] = $totalPrice;
 
             $invoices[] = $invoiceAdd;
         }

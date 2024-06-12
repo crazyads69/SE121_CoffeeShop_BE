@@ -9,8 +9,8 @@ use App\Models\Invoice;
 class DashboardController extends Controller
 {
     public function getSummaryStatisticToday() {
-        $startDay = time() - 86400 + (time() % 86400);
-        $endDay = $startDay + 86400;
+        $startDay = strtotime("today", time());
+        $endDay = strtotime("tomorrow", $startDay) - 1;
 
         $startYesterday = $startDay - 86400;
         $endYesterday = $startDay;
@@ -27,10 +27,10 @@ class DashboardController extends Controller
 
         foreach($invoices as $invoice) {
             if ($invoice->created_at->timestamp >= $startDay && $invoice->created_at->timestamp <= $endDay) {
-                $totalIncomeToday += $invoice->total_price;
+                $totalIncomeToday += $invoice->final_price;
                 $totalInvoiceToday++;
                 if ($invoice->status == 'pending') {
-                    $totalIncomePending += $invoice->total;
+                    $totalIncomePending += $invoice->final_price;
                 }
 
                 $invoicesDetails = $invoice->invoiceDetails()->get();
@@ -41,7 +41,7 @@ class DashboardController extends Controller
             }
 
             if ($invoice->created_at->timestamp >= $startYesterday && $invoice->created_at->timestamp <= $endYesterday) {
-                $totalIncomeYesterday += $invoice->total;
+                $totalIncomeYesterday += $invoice->final_price;
                 $totalInvoiceYesterday++;
 
                 $totalCustomerYesterday += $invoice->invoiceDetails()->count();

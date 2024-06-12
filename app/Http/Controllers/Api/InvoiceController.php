@@ -9,6 +9,7 @@ use App\Http\Requests\MultipleDestroyRequest;
 use App\Models\BankConfig;
 use App\Models\Customer;
 use App\Models\Invoice;
+use App\Models\InvoiceDetail;
 use App\Services\CartService;
 use App\Services\CustomerService;
 use App\Services\LoyalService;
@@ -21,7 +22,9 @@ class InvoiceController extends Controller
 {
     public function index()
     {
-        $invoices = Invoice::with('invoiceDetails', 'customer', 'staff', 'voucher')->paginate();
+        $invoices = Invoice::with('invoiceDetails', 'customer', 'staff', 'voucher')
+            ->orderBy('status', 'desc')
+            ->orderBy('id', 'desc')->paginate();
 
         return response()->json($invoices);
     }
@@ -390,5 +393,18 @@ class InvoiceController extends Controller
         $pendingInvoices = Invoice::where('status', 'pending')->paginate();
 
         return response()->json($pendingInvoices);
+    }
+
+    public function getTotalIncome()
+    {
+        $invoiceDetails = InvoiceDetail::all();
+
+        $totalIncome = 0;
+
+        foreach ($invoiceDetails as $invoiceDetail) {
+            $totalIncome += $invoiceDetail->unit_price * $invoiceDetail->quantity;
+        }
+
+        return response()->json(['total_income' => $totalIncome]);
     }
 }
