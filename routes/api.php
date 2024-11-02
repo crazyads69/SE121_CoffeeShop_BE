@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('/v1')->group(function () {
     Route::post('/chat', [\App\Http\Controllers\Api\ChatBotController::class, '__invoke']);
+    Route::post('/handle-task', [\App\Http\Controllers\Api\HandleTaskController::class, '__invoke']);
 
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::middleware(['checkAdmin'])->group(function () {
