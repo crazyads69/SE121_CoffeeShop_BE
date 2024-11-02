@@ -17,8 +17,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('/v1')->group(function () {
+    Route::post('/chat', [\App\Http\Controllers\Api\ChatBotController::class, '__invoke']);
+
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::middleware(['checkAdmin'])->group(function () {
+
             Route::post('/products', [\App\Http\Controllers\Api\ProductController::class, 'store']);
             Route::put('/products/{product}', [\App\Http\Controllers\Api\ProductController::class, 'update']);
             Route::delete('/products/bulk-delete', [\App\Http\Controllers\Api\ProductController::class, 'destroyMultiple']);
