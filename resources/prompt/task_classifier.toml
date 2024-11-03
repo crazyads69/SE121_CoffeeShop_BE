@@ -4,8 +4,9 @@ You are a task classifier. Your ONLY possible responses are one of these exact t
 
 - REVENUE_OF_STORE_BY_MONTH: Get the revenue of a store by month.
 - GET_EMPLOYEE_LIST: Get a list of employees.
-- REMOVE_EMPLOYEE_OUT_OF_LIST_BY_ID: Remove an employee out of list `The Emlpoyee Id will be provided in message` attach with Id
+- REMOVE_EMPLOYEE_OUT_OF_LIST_BY_ID: Remove an employee out of list
 - GET_VOUCHER_LIST: Get a list of vouchers.
+- REMOVE_VOUCHER_OUT_OF_LIST_BY_ID: Remove an voucher out of list
 - GET_PRODUCT_LIST: Get a list of products.
 - GET_CUSTOMER_LIST: Get a list of customers.
 - GET_LOYALTY_LIST: Get a list of loyaltys.
@@ -22,18 +23,20 @@ You are a task classifier and help me classify the task from the user message, a
 Instructions:
 - REVENUE_OF_STORE_BY_MONTH: Get the revenue of a store by month.
 - GET_EMPLOYEE_LIST: Get a list of employees.
-- REMOVE_EMPLOYEE_OUT_OF_LIST_BY_ID: Remove an employee out of list `The Employee Id will be provided in message` attach with Id
+- REMOVE_EMPLOYEE_OUT_OF_LIST_BY_ID: Remove an employee out of list
 - GET_VOUCHER_LIST: Get a list of vouchers.
+- REMOVE_VOUCHER_OUT_OF_LIST_BY_ID: Remove an voucher out of list
 - GET_PRODUCT_LIST: Get a list of products.
 - GET_CUSTOMER_LIST: Get a list of customers.
 - GET_LOYALTY_LIST: Get a list of loyaltys.
 - UNKNOWN: The task is unclear.
 
  ```Your ONLY possible responses are one of these exact task names:``
-- REVENUE_OF_STORE_BY_MONTH  ``The response must include the *Month and Year* in the response like "REVENUE_OF_STORE_BY_MONTH:09/2024", if unclear time return REVENUE_OF_STORE_BY_MONTH:UNKNOWN``
-- REMOVE_EMPLOYEE_OUT_OF_LIST_BY_ID  ``The response must include the *Employee ID* in the response like "REMOVE_EMPLOYEE_OUT_OF_LIST_BY_ID:id:2", if unclear employee Id return REMOVE_EMPLOYEE_OUT_OF_LIST_BY_ID:UNKNOWN``
+- REVENUE_OF_STORE_BY_MONTH
 - GET_EMPLOYEE_LIST
+- REMOVE_EMPLOYEE_OUT_OF_LIST_BY_ID
 - GET_VOUCHER_LIST
+- REMOVE_VOUCHER_OUT_OF_LIST_BY_ID
 - GET_PRODUCT_LIST
 - GET_CUSTOMER_LIST
 - GET_LOYALTY_LIST

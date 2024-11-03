@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Controllers\Api\StaffController;
 use App\Models\Loyal;
 use App\Models\User;
+use App\Models\Voucher;
 
 class HandleResponseTask
 {
@@ -31,6 +32,23 @@ class HandleResponseTask
                 // TODO: Implement delete
                 return response()->json()->setData(['task' => 'REMOVE_EMPLOYEE_OUT_OF_LIST', 'data' => $staff]);
             }
+        } else if ($response == 'GET_VOUCHER_LIST') {
+            $vouchers = Voucher::all();
+            /*
+             * $staffsName = '';
+            foreach ($staffs as $staff) {
+                $staffsName = $staffsName . $staff->id . ') '. $staff->name . ', ';
+            }
+            $staffsName = rtrim($staffsName, ', ');
+             */
+            $vouchersTitle = '';
+            foreach ($vouchers as $voucher) {
+                $vouchersTitle = $vouchersTitle . $voucher->id . ') '. $voucher->title . ', ';
+            }
+
+            $vouchersTitle = rtrim($vouchersTitle, ', ');
+            $messages = 'Đây là danh sách voucher hiện tại của cửa hàng: ' . $vouchersTitle;
+            return response()->json()->setData(['task' => 'GET_VOUCHER_LIST', 'data' => $messages]);
         }
         else if ($response == 'GET_LOYAL_LIST') {
             $loyals = Loyal::all();
