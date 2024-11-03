@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class StaffController extends Controller
 {
-    public function index()
+    public static function index()
     {
         $staffs = User::where('role', 0)->paginate();
 
