@@ -8,21 +8,31 @@ use App\Models\User;
 
 class HandleResponseTask
 {
-    public static function handleTask($response)
+    public static function handleTask($userMessage, $response)
     {
-        if ($response == 'GET_EMPLOYEE_LIST') {
+        if (str_contains($response, 'GET_EMPLOYEE_LIST')) {
             $staffs = User::all()->where('role', 0);
-            $staffsList = [];
+            $staffsName = '';
             foreach ($staffs as $staff) {
-                $staffsList[] = [
-                    'id' => $staff->id,
-                    'name' => $staff->name,
-                    'email' => $staff->email,
-                    'created_at' => $staff->created_at,
-                ];
+                $staffsName = $staffsName . $staff->id . ') '. $staff->name . ', ';
             }
-            return response()->json()->setData(['task' => 'GET_EMPLOYEE_LIST', 'data' => $staffsList]);
-        } else if ($response == 'GET_LOYAL_LIST') {
+            $staffsName = rtrim($staffsName, ', ');
+
+            $messages = 'Đây là danh sách nhân viên của cửa hàng: ' . $staffsName;
+            return response()->json()->setData(['task' => 'GET_EMPLOYEE_LIST', 'data' => $messages]);
+        } else if (str_contains($response, 'REMOVE_EMPLOYEE_OUT_OF_LIST')) {
+            // Filter the Numbers from String
+            $int_var = preg_replace('/[^0-9]/', '', $userMessage);
+
+            if ($int_var == '') {
+                return response()->json()->setData(['task' => 'REMOVE_EMPLOYEE_OUT_OF_LIST', 'data' => 'Không tìm thấy nhân viên cần xóa']);
+            } else {
+                $staff = User::where('id', $int_var)->first();
+                // TODO: Implement delete
+                return response()->json()->setData(['task' => 'REMOVE_EMPLOYEE_OUT_OF_LIST', 'data' => $staff]);
+            }
+        }
+        else if ($response == 'GET_LOYAL_LIST') {
             $loyals = Loyal::all();
             $loyalsList = [];
             foreach ($loyals as $loyal) {
@@ -34,10 +44,21 @@ class HandleResponseTask
                 ];
             }
             return response()->json()->setData(['task' => 'GET_LOYAL_LIST', 'data' => $loyalsList]);
-        } else {
-            return response()->json()->setData(['task' => 'UNKNOWN']);
+        } else if ($response == 'GET_CUSTOMER_LIST') {
+            $customers = User::all()->where('role', 1);
+            $customersList = [];
+            foreach ($customers as $customer) {
+                $customersList[] = [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                    'email' => $customer->email,
+                    'created_at' => $customer->created_at,
+                ];
+            }
+            return response()->json()->setData(['task' => 'GET_CUSTOMER_LIST', 'data' => $customersList]);
         }
-
-        return response()->json("Hello, I'm ChatBot");
+        else {
+            return response()->json()->setData(['task' => $response]);
+        }
     }
 }

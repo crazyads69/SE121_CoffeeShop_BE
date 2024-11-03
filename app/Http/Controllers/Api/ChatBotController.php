@@ -24,7 +24,7 @@ class ChatBotController extends Controller
             $userPromptTemplate = $config['task_classifier']['user'];
 
             // Example user message
-            $userMessage = "Cho tôi danh sách nhân viên của cửa hàng";
+            $userMessage = $request->get("message");
 
             // Replace placeholder {{ message }} in user prompt template with the actual message
             $userPrompt = str_replace('{{ message }}', $userMessage, $userPromptTemplate);
@@ -50,7 +50,7 @@ class ChatBotController extends Controller
                 echo "Error: " . $e->getMessage();
             }
 
-            return HandleResponseTask::handleTask($response['choices'][0]['message']['content']);
+            return HandleResponseTask::handleTask($userMessage, $response['choices'][0]['message']['content']);
 
         } catch (\Yosymfony\Toml\Exception\ParseException $e) {
             echo "Error parsing TOML file: " . $e->getMessage();
