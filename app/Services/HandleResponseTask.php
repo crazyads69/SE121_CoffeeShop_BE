@@ -49,8 +49,18 @@ class HandleResponseTask
             $vouchersTitle = rtrim($vouchersTitle, ', ');
             $messages = 'Đây là danh sách voucher hiện tại của cửa hàng: ' . $vouchersTitle;
             return response()->json()->setData(['task' => 'GET_VOUCHER_LIST', 'data' => $messages]);
-        }
-        else if ($response == 'GET_LOYAL_LIST') {
+        } else if (str_contains($response, 'REMOVE_VOUCHER_OUT_OF_LIST')) {
+            // Filter the Numbers from String
+            $int_var = preg_replace('/[^0-9]/', '', $userMessage);
+
+            if ($int_var == '') {
+                return response()->json()->setData(['task' => 'REMOVE_VOUCHER_OUT_OF_LIST', 'data' => 'Không tìm thấy voucher cần xóa']);
+            } else {
+                $voucher = Voucher::where('id', $int_var)->first();
+                // TODO: Implement delete
+                return response()->json()->setData(['task' => 'REMOVE_VOUCHER_OUT_OF_LIST', 'data' => $voucher]);
+            }
+        } else if ($response == 'GET_LOYAL_LIST') {
             $loyals = Loyal::all();
             $loyalsList = [];
             foreach ($loyals as $loyal) {
