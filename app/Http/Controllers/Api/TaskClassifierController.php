@@ -29,7 +29,7 @@ class TaskClassifierController extends Controller
             // Replace placeholder {{ message }} in user prompt template with the actual message
             $userPrompt = str_replace('{{ message }}', $userMessage, $userPromptTemplate);
 
-            $apiKey = env('OPEN_AI_KEY');
+            $apiKey = env('OPEN_API_KEY');
             $client = \OpenAI::client($apiKey);
 
 // Prepare the messages payload

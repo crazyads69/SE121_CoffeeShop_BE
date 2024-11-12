@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('/v1')->group(function () {
+    Route::get('/test', function () {
+        $data = Invoice::whereYear('created_at', 2024)->whereMonth('created_at', 10)->get();
+        return response()->json(['message' => 'Hello World', 'data' => $data]);
+    });
+
     Route::post('/chat', [\App\Http\Controllers\Api\ChatBotController::class, '__invoke']);
     Route::post('/task-classifier', [\App\Http\Controllers\Api\TaskClassifierController::class, '__invoke']);
     Route::post('/handle-task', [\App\Http\Controllers\Api\HandleTaskController::class, '__invoke']);
