@@ -9,10 +9,17 @@ class TaskHandleService
 {
     use ResponseTrait;
     protected RevenueService $revenueService;
+    protected ProductService $productService;
+    protected CustomerService $customerService;
+
     public function __construct(
-        RevenueService $revenueService
+        RevenueService $revenueService,
+        ProductService $productService,
+        CustomerService $customerService
     ) {
         $this->revenueService = $revenueService;
+        $this->productService = $productService;
+        $this->customerService = $customerService;
     }
     public function handleTask($taskData)
     {
@@ -22,7 +29,6 @@ class TaskHandleService
             'PRODUCT_MANAGEMENT' => $this->handleProductManagement($taskInfo),
             'CUSTOMER_MANAGEMENT' => $this->handleCustomerManagement($taskInfo),
             'VOUCHER_MANAGEMENT' => $this->handleVoucherManagement($taskInfo),
-            'INVOICE_MANAGEMENT' => $this->handleInvoiceManagement($taskInfo),
             'USER_MANAGEMENT' => $this->handleUserManagement($taskInfo),
             'BANK_CONFIG_MANAGEMENT' => $this->handleBankConfigManagement($taskInfo),
             default => $this->errorResponse('Không thể xác định yêu cầu của bạn', 500),
@@ -48,22 +54,31 @@ class TaskHandleService
         };
     }
 
-    private function handleProductManagement($taskInfo)
+    private function handleProductManagement($taskInfo): JsonResponse
     {
-        switch ($taskInfo['action']) {
-            case 'delete':
-                return $this->productRepo->delete($taskInfo['parameters']['product_id']);
-// Các action khác...
-        }
+        return match ($taskInfo->action) {
+            'get_list' => $this->productService->getListProduct(),
+            'get_by_category' => $this->productService->getListProduct($taskInfo->parameters->category),
+            'get_by_id' => $this->productService->getProductByInfo($taskInfo->parameters->id ?? null),
+            'get_by_name' => $this->productService->getProductByInfo(null, $taskInfo->parameters->name ?? null),
+            'delete_by_id' => $this->productService->deleteProduct($taskInfo->parameters->id ?? null),
+            'delete_by_name' => $this->productService->deleteProduct(null, $taskInfo->parameters->name ?? null),
+            default => $this->errorResponse('Không thể xác định yêu cầu của bạn', 500),
+        };
     }
 
-    private function handleCustomerManagement($taskInfo)
+    private function handleCustomerManagement($taskInfo): JsonResponse
     {
-        switch ($taskInfo['action']) {
-            case 'delete':
-                return $this->customerRepo->delete($taskInfo['parameters']['customer_id']);
-// Các action khác...
-        }
+        return match ($taskInfo->action) {
+            'get_list' => $this->customerService->getListCustomer(),
+            'get_by_id' => $this->customerService->getCustomerByInfo($taskInfo->parameters->id ?? null),
+            'get_by_name' => $this->customerService->getCustomerByInfo(null, $taskInfo->parameters->name ?? null),
+            'get_by_phone' => $this->customerService->getCustomerByInfo(null, null, $taskInfo->parameters->phone ?? null),
+            'delete_by_id' => $this->customerService->deleteCustomer($taskInfo->parameters->id ?? null),
+            'delete_by_name' => $this->customerService->deleteCustomer(null, $taskInfo->parameters->name ?? null),
+            'delete_by_phone' => $this->customerService->deleteCustomer(null, null, $taskInfo->parameters->phone ?? null),
+            default => $this->errorResponse('Không thể xác định yêu cầu của bạn', 500),
+        };
     }
 
     private function handleVoucherManagement($taskInfo)
