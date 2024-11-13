@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Traits\ResponseTrait;
+use Illuminate\Http\JsonResponse;
 
 class TaskHandleService
 {
@@ -16,7 +17,6 @@ class TaskHandleService
     public function handleTask($taskData)
     {
         $taskInfo = is_string($taskData) ? json_decode($taskData, true) : $taskData;
-
         return match ($taskInfo->task_type) {
             'REVENUE_ANALYSIS' => $this->handleRevenueAnalysis($taskInfo),
             'PRODUCT_MANAGEMENT' => $this->handleProductManagement($taskInfo),
@@ -25,24 +25,26 @@ class TaskHandleService
             'INVOICE_MANAGEMENT' => $this->handleInvoiceManagement($taskInfo),
             'USER_MANAGEMENT' => $this->handleUserManagement($taskInfo),
             'BANK_CONFIG_MANAGEMENT' => $this->handleBankConfigManagement($taskInfo),
-            default => [
-                'status' => 'error',
-                'message' => 'Không thể xác định yêu cầu của bạn'
-            ],
+            default => $this->errorResponse('Không thể xác định yêu cầu của bạn', 500),
         };
     }
 
-    private function handleRevenueAnalysis($taskInfo)
+    private function handleRevenueAnalysis($taskInfo): JsonResponse
     {
-        return match ($taskInfo['action']) {
-            'get_by_month' => $this->successResponse(
-                $this->revenueService->getRevenueByTimeRange($taskInfo['time_range']),
-                'Lấy dữ liệu doanh thu theo tháng thành công'
-            ),
-            default => [
-                'status' => 'error',
-                'message' => 'Không thể xác định yêu cầu của bạn'
-            ],
+        $timeRangeActions = [
+            'get_by_date',
+            'get_by_month',
+            'get_by_year',
+            'get_by_date_range'
+        ];
+
+        if (in_array($taskInfo->action, $timeRangeActions)) {
+            return $this->revenueService->getRevenueByTimeRange($taskInfo->time_range);
+        }
+
+        return match ($taskInfo->action) {
+            'get_by_product' => $this->revenueService->highestRevenueProducts(),
+            default => $this->errorResponse('Không thể xác định yêu cầu của bạn', 500),
         };
     }
 

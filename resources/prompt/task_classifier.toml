@@ -18,6 +18,7 @@ Available TASK_TYPES and their corresponding TABLE_NAME and ACTIONS:
    - Main Table: invoice
    - Related Tables: [invoice_detail]
    - Actions:
+     * get_by_date
      * get_by_month
      * get_by_year
      * get_by_date_range
