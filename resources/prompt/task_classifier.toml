@@ -53,7 +53,7 @@ Available TASK_TYPES and their corresponding TABLE_NAME and ACTIONS:
      * get_by_id
      * get_by_code
      * delete_by_id
-     * delete_by_name
+     * delete_by_code
 
 5. USER_MANAGEMENT
    - Main Table: user
@@ -61,15 +61,30 @@ Available TASK_TYPES and their corresponding TABLE_NAME and ACTIONS:
      * get_list
      * get_by_id
      * get_by_name
+     * get_by_email
      * delete_by_id
      * delete_by_name
+     * delete_by_email
 
 6. BANK_CONFIG_MANAGEMENT
    - Main Table: bank_config
    - Actions:
      * get_list
      * get_by_id
-     * get_by_bank_name
+     * get_by_bank_id
+     * get_by_bank_number
+     * get_by_bank_account_name
+     * delete_by_id
+     * delete_by_bank_id
+     * delete_by_bank_number
+     * delete_by_bank_account_name
+
+7. LOYAL_MANAGEMENT
+   - Main Table: loyal
+   - Actions:
+     * get_list
+     * get_by_id
+     * get_by_name
      * delete_by_id
      * delete_by_name
 
@@ -103,7 +118,7 @@ Consider these Vietnamese language variations:
 
 3. Customer related:
    - "khách hàng", "khách", "member", "thành viên"
-   - "điểm tích lũy", "hạng thành viên", "xóa"
+   - "xóa"
 
 4. Voucher related:
    - "voucher", "mã giảm giá", "khuyến mãi", "ưu đãi", "xóa"
@@ -112,7 +127,11 @@ Consider these Vietnamese language variations:
    - "nhân viên", "người dùng", "tài khoản", "user", "xóa"
 
 6. Bank Config related:
-   - "ngân hàng", "cấu hình", "thanh toán", "bank", "xóa"
+   - "ngân hàng", "cấu hình", "thanh toán", "cấu hình ngân hàng", "bank", "xóa"
+
+7. Loyal related:
+    - "khách hàng thân thiết", "khách hàng quen", "khách hàng thường xuyên", "khách hàng vip"
+    - "khách hàng trung thành" , "xóa"
 
 Message to analyze: {{ message }}
 

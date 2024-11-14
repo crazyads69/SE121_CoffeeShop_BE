@@ -63,11 +63,11 @@ class CustomerService
         } elseif($phone != null) {
             $customer = Customer::where('phone_number', $phone)->first();
         } else {
-            return $this->errorResponse('Không nhận diện được id, tên hoặc số của người dùng');
+            return $this->errorResponse('Không nhận diện được id, tên hoặc số của khách hàng');
         }
 
         if(!$customer) {
-            return $this->errorResponse('Không tìm thấy người dùng');
+            return $this->errorResponse('Không tìm thấy khách hàng');
         }
 
         return $this->successResponse($customer, 'Lấy Dữ Liệu Thành Công !!!');
@@ -82,14 +82,14 @@ class CustomerService
         } elseif($phone != null) {
             $customer = Customer::where('phone_number', $phone)->first();
         } else {
-            return $this->errorResponse('Không nhận diện được id, tên hoặc số của người dùng');
+            return $this->errorResponse('Không nhận diện được id, tên hoặc số của khách hàng');
         }
 
         if(!$customer) {
-            return $this->errorResponse('Không tìm thấy người dùng');
+            return $this->errorResponse('Không tìm thấy khách hàng');
         }
 
         $customer->delete();
-        return $this->successResponse([], 'Xóa Người Dùng Thành Công !!!');
+        return $this->successResponse([], 'Xóa Khách Hàng Thành Công !!!');
     }
 }

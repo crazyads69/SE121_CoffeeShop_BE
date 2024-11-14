@@ -11,15 +11,27 @@ class TaskHandleService
     protected RevenueService $revenueService;
     protected ProductService $productService;
     protected CustomerService $customerService;
+    protected UserService $userService;
+    protected VoucherService $voucherService;
+    protected LoyalService $loyalService;
+    protected BankConfigService $bankConfigService;
 
     public function __construct(
         RevenueService $revenueService,
         ProductService $productService,
-        CustomerService $customerService
+        CustomerService $customerService,
+        UserService $userService,
+        VoucherService $voucherService,
+        LoyalService $loyalService,
+        BankConfigService $bankConfigService
     ) {
         $this->revenueService = $revenueService;
         $this->productService = $productService;
         $this->customerService = $customerService;
+        $this->userService = $userService;
+        $this->voucherService = $voucherService;
+        $this->loyalService = $loyalService;
+        $this->bankConfigService = $bankConfigService;
     }
     public function handleTask($taskData)
     {
@@ -28,6 +40,7 @@ class TaskHandleService
             'REVENUE_ANALYSIS' => $this->handleRevenueAnalysis($taskInfo),
             'PRODUCT_MANAGEMENT' => $this->handleProductManagement($taskInfo),
             'CUSTOMER_MANAGEMENT' => $this->handleCustomerManagement($taskInfo),
+            'LOYAL_MANAGEMENT' => $this->handleLoyalManagement($taskInfo),
             'VOUCHER_MANAGEMENT' => $this->handleVoucherManagement($taskInfo),
             'USER_MANAGEMENT' => $this->handleUserManagement($taskInfo),
             'BANK_CONFIG_MANAGEMENT' => $this->handleBankConfigManagement($taskInfo),
@@ -81,41 +94,57 @@ class TaskHandleService
         };
     }
 
-    private function handleVoucherManagement($taskInfo)
+    private function handleVoucherManagement($taskInfo): JsonResponse
     {
-        switch ($taskInfo['action']) {
-            case 'delete':
-                return $this->voucherRepo->delete($taskInfo['parameters']['voucher_id']);
-// Các action khác...
-        }
+        return match ($taskInfo->action) {
+            'get_list' => $this->voucherService->getListVoucher(),
+            'get_by_id' => $this->voucherService->getVoucherByInfo($taskInfo->parameters->id ?? null),
+            'get_by_code' => $this->voucherService->getVoucherByInfo(null, $taskInfo->parameters->code ?? null),
+            'delete_by_id' => $this->voucherService->deleteVoucher($taskInfo->parameters->id ?? null),
+            'delete_by_code' => $this->voucherService->deleteVoucher(null, $taskInfo->parameters->code ?? null),
+            default => $this->errorResponse('Không thể xác định yêu cầu của bạn', 500),
+        };
     }
 
-    private function handleInvoiceManagement($taskInfo)
+    private function handleUserManagement($taskInfo): JsonResponse
     {
-        switch ($taskInfo['action']) {
-            case 'delete':
-                return $this->invoiceRepo->delete($taskInfo['parameters']['invoice_id']);
-// Các action khác...
-        }
+        return match ($taskInfo->action) {
+            'get_list' => $this->userService->getListUser(),
+            'get_by_id' => $this->userService->getUserByInfo($taskInfo->parameters->id ?? null),
+            'get_by_name' => $this->userService->getUserByInfo(null, $taskInfo->parameters->name ?? null),
+            'get_by_email' => $this->userService->getUserByInfo(null, null, $taskInfo->parameters->email ?? null),
+            'delete_by_id' => $this->userService->deleteUser($taskInfo->parameters->id ?? null),
+            'delete_by_name' => $this->userService->deleteUser(null, $taskInfo->parameters->name ?? null),
+            'delete_by_email' => $this->userService->deleteUser(null, null, $taskInfo->parameters->email ?? null),
+            default => $this->errorResponse('Không thể xác định yêu cầu của bạn', 500),
+        };
     }
 
-    private function handleUserManagement($taskInfo)
+    private function handleBankConfigManagement($taskInfo): JsonResponse
     {
-        switch ($taskInfo['action']) {
-            case 'delete':
-                return $this->userRepo->delete($taskInfo['parameters']['user_id']);
-// Các action khác...
-        }
+        return match ($taskInfo->action) {
+            'get_list' => $this->bankConfigService->getListBankConfig(),
+            'get_by_id' => $this->bankConfigService->getBankConfigByInfo($taskInfo->parameters->id ?? null),
+            'get_by_bank_id' => $this->bankConfigService->getBankConfigByInfo(null, $taskInfo->parameters->bank_id ?? null),
+            'get_by_bank_number' => $this->bankConfigService->getBankConfigByInfo(null, null, $taskInfo->parameters->bank_number ?? null),
+            'get_by_bank_account_name' => $this->bankConfigService->getBankConfigByInfo(null, null, null, $taskInfo->parameters->bank_account_name ?? null),
+            'delete_by_id' => $this->bankConfigService->deleteBankConfig($taskInfo->parameters->id ?? null),
+            'delete_by_bank_id' => $this->bankConfigService->deleteBankConfig(null, $taskInfo->parameters->bank_id ?? null),
+            'delete_by_bank_number' => $this->bankConfigService->deleteBankConfig(null, null, $taskInfo->parameters->bank_number ?? null),
+            'delete_by_bank_account_name' => $this->bankConfigService->deleteBankConfig(null, null, null,  $taskInfo->parameters->bank_account_name ?? null),
+            default => $this->errorResponse('Không thể xác định yêu cầu của bạn', 500),
+        };
     }
 
-    private function handleBankConfigManagement($taskInfo)
+    public function handleLoyalManagement($taskInfo): JsonResponse
     {
-        switch ($taskInfo['action']) {
-            case 'delete':
-                return $this->bankConfigRepo->delete($taskInfo['parameters']['config_id']);
-// Các action khác...
-        }
+        return match ($taskInfo->action) {
+            'get_list' => $this->loyalService->getListLoyal(),
+            'get_by_id' => $this->loyalService->getLoyalByInfo($taskInfo->parameters->id ?? null),
+            'get_by_name' => $this->loyalService->getLoyalByInfo(null, $taskInfo->parameters->name ?? null),
+            'delete_by_id' => $this->loyalService->deleteLoyal($taskInfo->parameters->id ?? null),
+            'delete_by_name' => $this->loyalService->deleteLoyal(null, $taskInfo->parameters->name ?? null),
+            default => $this->errorResponse('Không thể xác định yêu cầu của bạn', 500),
+        };
     }
-
-// Các method handle khác...
 }
