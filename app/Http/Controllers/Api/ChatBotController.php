@@ -22,10 +22,13 @@ class ChatBotController extends Controller
         $userMessage = $request->get("message");
         $response = $this->openAIService->classifyTask($userMessage);
         if(!$response->isSuccessful()) {
-            return $response;
+            $dataResponseTrain = $response;
+        } else {
+            $dataResponse = $response->getData()->data;
+            $dataResponseTrain = $this->taskHandleService->handleTask($dataResponse);
         }
 
-        $dataResponse = $response->getData()->data;
-        return $this->taskHandleService->handleTask($dataResponse);
+        $data = $this->openAIService->response($userMessage, $dataResponseTrain);
+        return nl2br($data);
     }
 }
