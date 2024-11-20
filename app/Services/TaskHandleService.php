@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Traits\ResponseTrait;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
 class TaskHandleService
@@ -54,15 +55,26 @@ class TaskHandleService
             'get_by_date',
             'get_by_month',
             'get_by_year',
-            'get_by_date_range'
+            'get_by_date_range',
+            'get_by_only_day'
         ];
 
         if (in_array($taskInfo->action, $timeRangeActions)) {
+            if ($taskInfo->action === 'get_by_only_day') {
+                $currentMonth = Carbon::now()->format('m');
+                $currentYear = Carbon::now()->format('Y');
+                $dateString = "{$taskInfo->time_range}/{$currentMonth}/{$currentYear}";
+
+                return $this->revenueService->getRevenueByTimeRange($dateString);
+            }
             return $this->revenueService->getRevenueByTimeRange($taskInfo->time_range);
         }
 
         return match ($taskInfo->action) {
             'get_by_product' => $this->revenueService->highestRevenueProducts(),
+            'get_by_current_day' => $this->revenueService->getRevenueByTimeRange(Carbon::now()->format('d/m/Y')),
+            'get_by_yesterday' => $this->revenueService->getRevenueByTimeRange(Carbon::yesterday()->format('d/m/Y')),
+            'get_by_tomorrow' => $this->revenueService->getRevenueByTimeRange( Carbon::tomorrow()->format('d/m/Y')),
             default => $this->errorResponse('Không thể xác định yêu cầu của bạn', 500),
         };
     }

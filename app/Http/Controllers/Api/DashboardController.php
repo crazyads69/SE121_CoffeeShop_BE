@@ -44,8 +44,6 @@ class DashboardController extends Controller
                 $totalIncomeYesterday += $invoice->final_price;
                 $totalInvoiceYesterday++;
 
-                $totalCustomerYesterday += $invoice->invoiceDetails()->count();
-
                 foreach ($invoice->invoiceDetails()->get() as $invoiceDetail) {
                     $totalCustomerYesterday += $invoiceDetail->quantity;
                 }
