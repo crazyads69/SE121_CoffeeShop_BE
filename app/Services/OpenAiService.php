@@ -85,7 +85,9 @@ class OpenAiService
             1. Phải dựa trực tiếp vào thông tin được cung cấp
             2. Nội dung phải quy đổi về dễ hiểu , dễ đọc , nếu data hãy quy đổi về dạng bảng
             3. Trả lời bằng tiếng Việt, rõ ràng và dễ hiểu
-            4. Trả lời như chatbot với người dùng";
+            4. Trả lời như chatbot với người dùng
+            5. Trả lời phải chứa đầy đủ thông tin về câu trả lời
+            ";
 
         $promptV1 = str_replace('{{question}}', $question, $promptTemplate);
         $promptV2 = str_replace('{{information}}', $jsonEncode, $promptV1);

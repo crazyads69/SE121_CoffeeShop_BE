@@ -74,7 +74,6 @@ class RevenueService
         list($month, $year) = explode('/', $timeRange);
         $invoices = Invoice::whereYear('created_at', $year)
             ->whereMonth('created_at', $month)
-            ->where('status', 'finish')
             ->with(['invoiceDetails.products', 'customer', 'user'])
             ->get();
         return $this->getInfoDataInvoices($invoices);
@@ -85,7 +84,6 @@ class RevenueService
         $startDate = Carbon::createFromFormat('m/Y', $startDate);
         $endDate = Carbon::createFromFormat('m/Y', $endDate)->endOfMonth();
         $invoices = Invoice::whereBetween('created_at', [$startDate, $endDate])
-            ->where('status', 'finish')
             ->with(['invoiceDetails.products', 'customer', 'user'])->get();
         $result = $this->getInfoDataInvoices($invoices);
         return response()->json($result);
@@ -96,7 +94,6 @@ class RevenueService
         $startDate = Carbon::createFromFormat('d/m/Y', $startDate);
         $endDate = Carbon::createFromFormat('d/m/Y', $endDate);
         $invoices = Invoice::whereBetween('created_at', [$startDate, $endDate])
-            ->where('status', 'finish')
             ->with(['invoiceDetails.products', 'customer', 'user'])->get();
         $result = $this->getInfoDataInvoices($invoices);
         return response()->json($result);
@@ -106,7 +103,6 @@ class RevenueService
     {
         $date = Carbon::createFromFormat('d/m/Y', $date);
         $invoices = Invoice::whereDate('created_at', $date)
-            ->where('status', 'finish')
             ->with(['invoiceDetails.products', 'customer', 'user'])->get();
         $result = $this->getInfoDataInvoices($invoices);
         return response()->json($result);
@@ -115,7 +111,6 @@ class RevenueService
     private function getByYear($timeRange)
     {
         $invoices = Invoice::whereYear('created_at', $timeRange)
-            ->where('status', 'finish')
             ->with(['invoiceDetails.products', 'customer', 'user'])->get();
         $result = $this->getInfoDataInvoices($invoices);
         return response()->json($result);
@@ -127,7 +122,6 @@ class RevenueService
             ->select('product_id', 'product.name',DB::raw('SUM(quantity * invoice_detail.unit_price) as total_revenue'))
             ->join('product', 'invoice_detail.product_id', '=', 'product.id')
             ->join('invoice', 'invoice_detail.invoice_id', '=', 'invoice.id')
-            ->where('invoice.status', 'finish')
             ->groupBy('product_id')
             ->orderBy('total_revenue', 'desc')
             ->take(5)->get();
