@@ -60,7 +60,8 @@ class OpenAiService
 
     public function response($question, $response)
     {
-        $responsePrompt = $this->prepareResponsePrompt($question, $response);
+        $isAnalytics = $response->getData()->isAnalytics;
+        $responsePrompt = $this->prepareResponsePrompt($question, $response, $isAnalytics);
         $messages = [
             ['role' => 'user', 'content' => $responsePrompt],
         ];
@@ -74,7 +75,7 @@ class OpenAiService
         return trim(str_replace("```", "", $dataResponse));
     }
 
-    protected function prepareResponsePrompt($question, $response)
+    protected function prepareResponsePrompt($question, $response, $isAnalytics = false)
     {
         $jsonEncode = json_encode($response);
         $promptTemplate =
@@ -88,6 +89,10 @@ class OpenAiService
             4. Trả lời như chatbot với người dùng
             5. Trả lời phải chứa đầy đủ thông tin về câu trả lời
             ";
+        if ($isAnalytics) {
+            $promptTemplate .= "6. Dựa trên dữ liệu phân tích, hãy đưa ra phân tích chiến lược kinh doanh và hướng phát triển";
+        }
+        $promptTemplate .= "Lưu ý: Kết thúc câu trả lời bằng cách nói 'Hy vọng thông tin sẽ hữu ích tới bạn/ Tôi có thể giúp gì thêm cho bạn'";
 
         $promptV1 = str_replace('{{question}}', $question, $promptTemplate);
         $promptV2 = str_replace('{{information}}', $jsonEncode, $promptV1);

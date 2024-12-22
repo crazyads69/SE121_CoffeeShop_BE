@@ -41,7 +41,7 @@ class RevenueService
             return $this->errorResponse('Lỗi Định Dạng Ngày, Vui Lòng Thử Lại !!!');
         }
 
-        return $this->successResponse($data, 'Lấy Dữ Liệu Thành Công !!!');
+        return $this->successResponseAnalytics($data);
     }
 
     private function getInfoDataInvoices($invoices): array
@@ -129,6 +129,10 @@ class RevenueService
         if ($highestRevenueProduct->isEmpty()) {
             return $this->errorResponse('Không có dữ liệu !!!');
         }
-        return $this->successResponse($highestRevenueProduct, 'Lấy Dữ Liệu Thành Công !!!');
+        return $this->successResponseAnalytics($highestRevenueProduct);
+    }
+
+    public function successResponseAnalytics($data) {
+        return $this->successResponse($data, 'Lấy Dữ Liệu Thành Công !!!', true);
     }
 }
