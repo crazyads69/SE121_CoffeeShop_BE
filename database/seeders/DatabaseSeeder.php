@@ -10,9 +10,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            InvoiceSeeder::class,
             ProductSeeder::class,
             VoucherSeeder::class,
+            InvoiceSeeder::class,
             CustomerSeeder::class,
         ]);
     }

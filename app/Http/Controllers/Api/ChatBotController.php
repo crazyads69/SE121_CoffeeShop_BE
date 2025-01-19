@@ -34,6 +34,9 @@ class ChatBotController extends Controller
             $dataResponseTrain = $this->taskHandleService->handleTask($dataResponse);
         }
 
+        return response()->json($response);
+
+
         $data = $this->openAIService->response($userMessage, $dataResponseTrain);
         return nl2br($data);
     }
@@ -59,6 +62,8 @@ class ChatBotController extends Controller
             $dataResponseTrain,
             $task_type
         );
+
+        return response()->json($response);
 
         return nl2br($formattedResponse);
     }

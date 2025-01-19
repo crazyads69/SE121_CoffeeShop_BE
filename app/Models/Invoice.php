@@ -23,6 +23,7 @@ class Invoice extends Model
         'discount_price',
         'final_price',
         'status',
+        'created_at',
     ];
 
     public function invoiceDetails()
@@ -33,6 +34,11 @@ class Invoice extends Model
     public function voucher()
     {
         return $this->belongsTo(Voucher::class, 'user_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function customer()

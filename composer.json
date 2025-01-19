@@ -9,7 +9,10 @@
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.3",
-        "laravel/tinker": "^2.7"
+        "laravel/tinker": "^2.7",
+        "openai-php/client": "^0.10.2",
+        "openai/openai": "dev-main",
+        "yosymfony/toml": "^1.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
@@ -58,7 +61,8 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
-            "pestphp/pest-plugin": true
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
         }
     },
     "minimum-stability": "dev",

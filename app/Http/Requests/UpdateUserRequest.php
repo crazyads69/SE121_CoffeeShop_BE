@@ -9,14 +9,15 @@ class UpdateUserRequest extends FormRequest
 {
     public function rules()
     {
+        $userId = $this->staff->id;
         return [
             'name' => 'required|string|max:55',
-            'email' => 'required|email|unique:users,email,'.$this->id,
+            'email' => 'required|email|unique:users,email,' . $userId,
             'password' => [
                 'confirmed',
                 Password::min(8)
                     ->letters()
-                    ->symbols(),
+                    ->symbols()->numbers(),
             ],
         ];
     }
