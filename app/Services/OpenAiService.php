@@ -87,7 +87,7 @@ class OpenAiService
             2. Nội dung phải quy đổi về dễ hiểu , dễ đọc , nếu data hãy quy đổi về dạng bảng
             3. Trả lời bằng tiếng Việt, rõ ràng và dễ hiểu
             4. Trả lời như chatbot với người dùng
-            5. Trả lời phải chứa đầy đủ thông tin về câu trả lời
+            5. Đảm bảo câu trả lời chứa đầy đủ thông tin cần thiết về câu hỏi và câu trả lời, không bỏ sót bất kỳ chi tiết quan trọng nào.
             ";
         if ($isAnalytics) {
             $promptTemplate .= "6. Dựa trên dữ liệu phân tích, hãy đưa ra phân tích chiến lược kinh doanh và hướng phát triển";

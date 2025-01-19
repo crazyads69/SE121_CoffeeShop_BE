@@ -24,6 +24,7 @@ Route::prefix('/v1')->group(function () {
     });
 
     Route::post('/chat', [\App\Http\Controllers\Api\ChatBotController::class, '__invoke']);
+    Route::post('/chat-normal', [\App\Http\Controllers\Api\ChatBotController::class, 'normal']);
     Route::post('/task-classifier', [\App\Http\Controllers\Api\TaskClassifierController::class, '__invoke']);
     Route::post('/handle-task', [\App\Http\Controllers\Api\HandleTaskController::class, '__invoke']);
 
